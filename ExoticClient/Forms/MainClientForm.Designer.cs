@@ -105,6 +105,7 @@
             this.HeaderHeight = 25;
             this.Name = "MainClientForm";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.MainClientForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.MinimizeButton)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.MaximizeButton)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ExitButton)).EndInit();

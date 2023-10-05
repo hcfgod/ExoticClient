@@ -11,6 +11,11 @@ namespace ExoticClient.Forms
             InitializeComponent();
         }
 
+        private async void MainClientForm_Load(object sender, System.EventArgs e)
+        {
+            await ChronicApplication.Instance.TcpClient.ConnectToServer();
+        }
+
         private void ExitButton_Click(object sender, System.EventArgs e)
         {
             ChronicApplication.Instance.Shutdown();

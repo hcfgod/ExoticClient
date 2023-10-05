@@ -2,7 +2,7 @@
 using System.Windows.Forms;
 
 using ExoticClient.App.UI;
-
+using ExoticClient.Classes.Client;
 using Serilog;
 
 namespace ExoticClient.App
@@ -13,6 +13,7 @@ namespace ExoticClient.App
 
         private readonly FormHandler _formHandler;
         private readonly ILogger _logger;
+        private readonly ExoticTcpClient _tcpClient;
 
         public ChronicApplication()
         {
@@ -20,6 +21,9 @@ namespace ExoticClient.App
                 Instance = this;
 
             _formHandler = new FormHandler();
+
+            _tcpClient = new ExoticTcpClient("127.0.0.1", 24000);
+
             _logger = new LoggerConfiguration()
                         .WriteTo.File("ExoticClient-logs.txt", rollingInterval: RollingInterval.Day)
                         .CreateLogger();
@@ -53,5 +57,6 @@ namespace ExoticClient.App
 
         public FormHandler FormHandler { get { return _formHandler; } }
         public ILogger Logger { get { return _logger;} }
+        public ExoticTcpClient TcpClient { get { return _tcpClient; } }
     }
 }
