@@ -69,6 +69,9 @@
     <Compile Include="Classes\Client\PacketSystem\IPacketHandler.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packet.cs" />
     <Compile Include="Classes\Client\PacketSystem\PacketHandler.cs" />
+    <Compile Include="Classes\Client\PacketSystem\Packets\ClientIDPacket.cs" />
+    <Compile Include="Classes\User.cs" />
+    <Compile Include="Classes\UserManager.cs" />
     <Compile Include="Forms\MainClientForm.cs">
       <SubType>Form</SubType>
     </Compile>

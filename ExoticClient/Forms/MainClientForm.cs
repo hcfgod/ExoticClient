@@ -24,12 +24,6 @@ namespace ExoticClient.Forms
             await ChronicApplication.Instance.TcpClient.ConnectToServer();
 
             _tcpClient = _application.TcpClient;
-
-            string testDataString = "Hey Keith You Did It!";
-            byte[] testDataBytes = Encoding.UTF8.GetBytes(testDataString);
-
-            Packet testPacket = ChronicApplication.Instance.TcpClient.PacketHandler.CreateNewPacket(testDataBytes, 1);
-            await _tcpClient.PacketHandler.SendPacketAsync(testPacket, _tcpClient.ClientHandler.GetNetworkStream());
         }
 
         private void ExitButton_Click(object sender, System.EventArgs e)

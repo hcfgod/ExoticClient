@@ -6,7 +6,7 @@ namespace ExoticClient.Classes.Client.PacketSystem
     {
         // Metadata
         public Guid PacketID { get; set; }
-        public int PacketType { get; set; }
+        public string PacketType { get; set; }
         public long SequenceNumber { get; set; }
         public DateTime Timestamp { get; set; }
 

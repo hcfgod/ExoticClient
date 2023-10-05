@@ -1,4 +1,5 @@
 ﻿using ExoticClient.App;
+using ExoticClient.Classes.Client.PacketSystem.Packets;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace ExoticClient.Classes.Client.PacketSystem
 {
     public class PacketHandler
     {
-        private Dictionary<int, IPacketHandler> packetHandlers = new Dictionary<int, IPacketHandler>();
+        private Dictionary<string, IPacketHandler> packetHandlers = new Dictionary<string, IPacketHandler>();
 
         private Dictionary<string, int> rateLimits = new Dictionary<string, int>();
         private Dictionary<string, DateTime> lastRequestTimes = new Dictionary<string, DateTime>();
@@ -20,6 +21,7 @@ namespace ExoticClient.Classes.Client.PacketSystem
         public PacketHandler()
         {
             // Initialize packet handlers
+            packetHandlers.Add("Client ID Packet", new ClientIDPacket());
         }
 
         public byte[] SerializePacket(Packet packet)
@@ -62,19 +64,19 @@ namespace ExoticClient.Classes.Client.PacketSystem
             }
         }
 
-        public Packet CreateNewPacket(byte[] data, int packetType, bool encryptionFlag = false, string version = "0.1")
+        public Packet CreateNewPacket(byte[] data, string packetType, bool encryptionFlag = false, string version = "0.1")
         {
             Packet packet = new Packet
             {
                 PacketID = Guid.NewGuid(),
                 PacketType = packetType,
-                Timestamp = DateTime.Now,
+                Timestamp = DateTime.UtcNow,
                 Data = data,
                 EncryptionFlag = encryptionFlag,
 
                 Version = version,
                 Priority = 1,
-                ExpirationTime = DateTime.Now.AddMinutes(5),
+                ExpirationTime = DateTime.UtcNow.AddMinutes(5),
                 SenderID = "Server",
                 ReceiverID = "Client",
             };
