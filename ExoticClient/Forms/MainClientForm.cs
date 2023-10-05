@@ -18,6 +18,8 @@ namespace ExoticClient.Forms
 
         private void ExitButton_Click(object sender, System.EventArgs e)
         {
+            ChronicApplication.Instance.TcpClient.DisconnectFromServer();
+
             ChronicApplication.Instance.Shutdown();
         }
 
