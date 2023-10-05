@@ -68,13 +68,13 @@ namespace ExoticClient.Classes.Client.PacketSystem
             {
                 PacketID = Guid.NewGuid(),
                 PacketType = packetType,
-                Timestamp = DateTime.UtcNow,
+                Timestamp = DateTime.Now,
                 Data = data,
                 EncryptionFlag = encryptionFlag,
 
                 Version = version,
                 Priority = 1,
-                ExpirationTime = DateTime.UtcNow.AddMinutes(5),
+                ExpirationTime = DateTime.Now.AddMinutes(5),
                 SenderID = "Server",
                 ReceiverID = "Client",
             };
@@ -83,6 +83,7 @@ namespace ExoticClient.Classes.Client.PacketSystem
             {
                 packet.FragmentID = Guid.NewGuid();
             }
+
             return packet;
         }
 

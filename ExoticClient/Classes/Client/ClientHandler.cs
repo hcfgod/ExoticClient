@@ -67,5 +67,10 @@ namespace ExoticClient.Classes.Client
         {
             return _client;
         }
+
+        public NetworkStream GetNetworkStream()
+        {
+            return _clientStream;
+        }
     }
 }

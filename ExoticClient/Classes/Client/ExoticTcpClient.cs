@@ -38,7 +38,7 @@ namespace ExoticClient.Classes.Client
         {
             try
             {
-                await _tcpClient.ConnectAsync(_host, _port).ConfigureAwait(false);
+                await _tcpClient.ConnectAsync(_host, _port);
 
                 _clientNetworkStream = _tcpClient.GetStream();
 
@@ -81,6 +81,7 @@ namespace ExoticClient.Classes.Client
         }
 
         public ClientHandler ClientHandler { get { return _clientHandler; } }
+        public PacketHandler PacketHandler { get { return _packetHandler; } }
 
         public bool IsClientConnectedToServer { get { return _isClientConnectedToServer; } }
     }
