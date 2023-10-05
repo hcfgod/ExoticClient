@@ -27,7 +27,6 @@ namespace ExoticClient.App
             _logger = new LoggerConfiguration()
                         .WriteTo.File("ExoticClient-logs.txt", rollingInterval: RollingInterval.Day)
                         .CreateLogger();
-
         }
 
         public void Initialize()
