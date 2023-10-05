@@ -14,14 +14,12 @@ namespace ExoticClient.Classes.Client.PacketSystem
     {
         private Dictionary<string, IPacketHandler> packetHandlers = new Dictionary<string, IPacketHandler>();
 
-        private Dictionary<string, int> rateLimits = new Dictionary<string, int>();
-        private Dictionary<string, DateTime> lastRequestTimes = new Dictionary<string, DateTime>();
-        private const int MaxRequestsPerMinute = 60; // Set your limit here
-
         public PacketHandler()
         {
             // Initialize packet handlers
             packetHandlers.Add("Client ID Packet", new ClientIDPacket());
+            packetHandlers.Add("Disconnected For Security Reasons Packet", new DisconnectedForSecurityReasonsPacket());
+            packetHandlers.Add("Too Many Request Packet", new TooManyRequestPacket());
         }
 
         public byte[] SerializePacket(Packet packet)
@@ -77,9 +75,10 @@ namespace ExoticClient.Classes.Client.PacketSystem
                 Version = version,
                 Priority = 1,
                 ExpirationTime = DateTime.UtcNow.AddMinutes(5),
-                SenderID = "Server",
-                ReceiverID = "Client",
             };
+
+            packet.SenderID = UserManager.Instance.CurrentUser.ClientID;
+            packet.ReceiverID = "Server";
 
             if (packet.IsFragmented)
             {
@@ -89,16 +88,8 @@ namespace ExoticClient.Classes.Client.PacketSystem
             return packet;
         }
 
-        public async Task<bool> SendPacketAsync(Packet packet, NetworkStream stream, string clientId = null)
+        public async Task<bool> SendPacketAsync(Packet packet, NetworkStream stream)
         {
-            if (clientId != null)
-            {
-                if (IsRateLimited(clientId))
-                {
-                    return false;
-                }
-            }
-
             try
             {
                 byte[] data = SerializePacket(packet);
@@ -172,33 +163,6 @@ namespace ExoticClient.Classes.Client.PacketSystem
             {
                 ChronicApplication.Instance.Logger.Warning($"Unknown packet type {packet.PacketType}");
             }
-        }
-
-        public bool IsRateLimited(string clientId)
-        {
-            if (!rateLimits.ContainsKey(clientId))
-            {
-                rateLimits[clientId] = 0;
-                lastRequestTimes[clientId] = DateTime.UtcNow;
-            }
-
-            // Check if the time window has passed and reset
-            if ((DateTime.UtcNow - lastRequestTimes[clientId]).TotalMinutes >= 1)
-            {
-                rateLimits[clientId] = 0;
-                lastRequestTimes[clientId] = DateTime.UtcNow;
-            }
-
-            // Check rate limit
-            if (rateLimits[clientId] >= MaxRequestsPerMinute)
-            {
-                ChronicApplication.Instance.Logger.Warning($"(PacketHandler.cs) - IsRateLimited(): Client {clientId} is rate-limited.");
-                return true;
-            }
-
-            // Increment the rate limit counter
-            rateLimits[clientId]++;
-            return false;
         }
     }
 }

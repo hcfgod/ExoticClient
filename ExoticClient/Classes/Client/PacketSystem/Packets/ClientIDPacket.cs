@@ -9,7 +9,6 @@ namespace ExoticClient.Classes.Client.PacketSystem.Packets
         {
             string clientID = Encoding.UTF8.GetString(packet.Data);
             UserManager.Instance.CurrentUser.ClientID = clientID;
-            MessageBox.Show(UserManager.Instance.CurrentUser.ClientID);
         }
     }
 }

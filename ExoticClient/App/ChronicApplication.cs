@@ -29,8 +29,10 @@ namespace ExoticClient.App
             _userManager = new UserManager();
 
             _logger = new LoggerConfiguration()
-                        .WriteTo.File("ExoticClient-logs.txt", rollingInterval: RollingInterval.Day)
+                        .WriteTo.File("D:/Coding/Projects/C#/ServerAndClient Projects/ExoticClient/ExoticClient-logs.txt", rollingInterval: RollingInterval.Day)
                         .CreateLogger();
+
+            _logger.Information($"(ChronicApplication.cs) - ChronicApplication(): App Started!");
         }
 
         public void Initialize()
