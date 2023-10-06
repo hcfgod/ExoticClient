@@ -2,6 +2,7 @@
 using ExoticClient.Classes.Client.PacketSystem;
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,11 +48,14 @@ namespace ExoticClient.Classes.Client
                     }
                 }
 
-                Packet receivedPacket = await _packetHandler.ReceivePacketAsync(_clientStream, dataBuffer);
+                List<Packet> receivedPackets = await _packetHandler.ReceivePacketAsync(_clientStream, dataBuffer);
 
-                if (receivedPacket != null)
+                if (receivedPackets != null)
                 {
-                    _packetHandler.ProcessPacket(receivedPacket);
+                    foreach (var receivedPacket in receivedPackets)
+                    {
+                        _packetHandler.ProcessPacket(receivedPacket);
+                    }
                 }
             }
         }

@@ -2,8 +2,10 @@
 using ExoticClient.Classes.Client.PacketSystem.Packets;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,14 +14,15 @@ namespace ExoticClient.Classes.Client.PacketSystem
 {
     public class PacketHandler
     {
-        private Dictionary<string, IPacketHandler> packetHandlers = new Dictionary<string, IPacketHandler>();
+        private ConcurrentDictionary<string, IPacketHandler> packetHandlers = new ConcurrentDictionary<string, IPacketHandler>();
+        private ConcurrentDictionary<string, List<Packet>> packetFragments = new ConcurrentDictionary<string, List<Packet>>();
 
         public PacketHandler()
         {
             // Initialize packet handlers
-            packetHandlers.Add("Client ID Packet", new ClientIDPacket());
-            packetHandlers.Add("Disconnected For Security Reasons Packet", new DisconnectedForSecurityReasonsPacket());
-            packetHandlers.Add("Too Many Request Packet", new TooManyRequestPacket());
+            packetHandlers.TryAdd("Client ID Packet", new ClientIDPacket());
+            packetHandlers.TryAdd("Disconnected For Security Reasons Packet", new DisconnectedForSecurityReasonsPacket());
+            packetHandlers.TryAdd("Too Many Request Packet", new TooManyRequestPacket());
         }
 
         public byte[] SerializePacket(Packet packet)
@@ -43,16 +46,33 @@ namespace ExoticClient.Classes.Client.PacketSystem
             }
         }
 
-        public Packet DeserializePacket(byte[] data)
+        public List<Packet> DeserializePackets(byte[] data)
         {
             try
             {
-                string jsonString = Encoding.UTF8.GetString(data);
-                return JsonConvert.DeserializeObject<Packet>(jsonString);
+                List<Packet> packets = new List<Packet>();
+                string receivedDataStr = Encoding.UTF8.GetString(data);
+                string[] jsonPackets = receivedDataStr.Split(new[] { "}{" }, StringSplitOptions.None);
+
+                foreach (var json in jsonPackets)
+                {
+                    string validJson = json;
+                    if (!json.StartsWith("{")) validJson = "{" + validJson;
+                    if (!json.EndsWith("}")) validJson = validJson + "}";
+
+                    Packet packet = JsonConvert.DeserializeObject<Packet>(validJson);
+                    if (packet != null)
+                    {
+                        packets.Add(packet);
+                    }
+                }
+
+                return packets;
             }
             catch (JsonException jsonEx)
             {
-                ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - DeserializePacket(): JSON Deserialization Error: {jsonEx.Message}");
+                string receivedDataStr = Encoding.UTF8.GetString(data);
+                ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - DeserializePacket(): JSON Deserialization Error: {jsonEx.Message}. Received data: {receivedDataStr}");
                 return null;
             }
             catch (Exception ex)
@@ -75,10 +95,9 @@ namespace ExoticClient.Classes.Client.PacketSystem
                 Version = version,
                 Priority = 1,
                 ExpirationTime = DateTime.UtcNow.AddMinutes(5),
+                SenderID = "Server",
+                ReceiverID = "Client",
             };
-
-            packet.SenderID = UserManager.Instance.CurrentUser.ClientID;
-            packet.ReceiverID = "Server";
 
             if (packet.IsFragmented)
             {
@@ -88,39 +107,102 @@ namespace ExoticClient.Classes.Client.PacketSystem
             return packet;
         }
 
-        public async Task<bool> SendPacketAsync(Packet packet, NetworkStream stream)
+        public List<Packet> CreateChunks(Packet largePacket, int maxChunkSize)
+        {
+            List<Packet> chunks = new List<Packet>();
+            byte[] largeData = largePacket.Data;
+
+            int totalFragments = (int)Math.Ceiling((double)largeData.Length / maxChunkSize);
+
+            for (int i = 0; i < largeData.Length; i += maxChunkSize)
+            {
+                byte[] chunkData = largeData.Skip(i).Take(maxChunkSize).ToArray();
+
+                Packet chunk = new Packet
+                {
+                    PacketID = largePacket.PacketID,
+                    PacketType = largePacket.PacketType,
+                    Timestamp = largePacket.Timestamp,
+                    Data = chunkData,
+                    EncryptionFlag = largePacket.EncryptionFlag,
+
+                    IsFragmented = true,
+                    FragmentID = largePacket.PacketID,
+                    SequenceNumber = i / maxChunkSize,
+                    TotalFragments = totalFragments,
+
+                    Version = largePacket.Version,
+                    Priority = largePacket.Priority,
+                    ExpirationTime = largePacket.ExpirationTime,
+                    SenderID = largePacket.SenderID,
+                    ReceiverID = largePacket.ReceiverID,
+                };
+                chunks.Add(chunk);
+            }
+            return chunks;
+        }
+
+        public async Task SendPacketAsync(Packet packet, NetworkStream stream, int maxChunkSize = 4096)
         {
             try
             {
-                byte[] data = SerializePacket(packet);
-                if (data == null)
+                if (packet.Data.Length > maxChunkSize)
                 {
-                    // Serialization failed
-                    return false;
+                    var chunks = CreateChunks(packet, maxChunkSize);
+                    foreach (var chunk in chunks)
+                    {
+                        await SendSinglePacketAsync(stream, chunk);
+                    }
                 }
-
-                await stream.WriteAsync(data, 0, data.Length);
-                return true;
+                else
+                {
+                    await SendSinglePacketAsync(stream, packet);
+                }
             }
             catch (IOException ioEx)
             {
                 ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - SendPacketAsync(): IO Error: {ioEx.Message}");
-                return false;
             }
             catch (ObjectDisposedException objDisposedEx)
             {
                 ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - SendPacketAsync(): Object Disposed Error: {objDisposedEx.Message}");
-                return false;
             }
             catch (Exception ex)
             {
                 ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - SendPacketAsync(): General Error: {ex.Message}");
-                return false;
             }
         }
 
-        public async Task<Packet> ReceivePacketAsync(NetworkStream stream, byte[] buffer)
+        private async Task SendSinglePacketAsync(NetworkStream stream, Packet packet)
         {
+            try
+            {
+                byte[] data = SerializePacket(packet);
+
+                if (data == null)
+                {
+                    ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - SendPacketAsync(): Serialization Error: Serialization failed data was null");
+                }
+
+                await stream.WriteAsync(data, 0, data.Length);
+            }
+            catch (IOException ioEx)
+            {
+                ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - SendPacketAsync(): IO Error: {ioEx.Message}");
+            }
+            catch (ObjectDisposedException objDisposedEx)
+            {
+                ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - SendPacketAsync(): Object Disposed Error: {objDisposedEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - SendPacketAsync(): General Error: {ex.Message}");
+            }
+        }
+
+        public async Task<List<Packet>> ReceivePacketAsync(NetworkStream stream, byte[] buffer)
+        {
+            List<Packet> receivedPackets = new List<Packet>();
             try
             {
                 int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
@@ -134,23 +216,53 @@ namespace ExoticClient.Classes.Client.PacketSystem
                 byte[] receivedData = new byte[bytesRead];
                 Array.Copy(buffer, receivedData, bytesRead);
 
-                return DeserializePacket(receivedData);
+                List<Packet> deserializedPackets = DeserializePackets(receivedData);
+
+                foreach (var deserializedPacket in deserializedPackets)
+                {
+                    if (deserializedPacket == null)
+                    {
+                        ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - ReceivePacketAsync(): Deserialize Packet is null.");
+                        continue;
+                    }
+
+                    ChronicApplication.Instance.Logger.Information($"Received packet with ID: {deserializedPacket.PacketID}, Sequence: {deserializedPacket.SequenceNumber}");
+
+                    if (deserializedPacket.IsFragmented)
+                    {
+                        if (!packetFragments.ContainsKey(deserializedPacket.FragmentID.ToString()))
+                        {
+                            packetFragments.TryAdd(deserializedPacket.FragmentID.ToString(), new List<Packet>());
+                        }
+
+                        packetFragments[deserializedPacket.FragmentID.ToString()].Add(deserializedPacket);
+
+                        if (IsLastFragment(deserializedPacket))
+                        {
+                            HandleMissingOrOutOfOrderFragments(deserializedPacket.FragmentID.ToString());
+
+                            receivedPackets.Add(ReassemblePacket(deserializedPacket.FragmentID.ToString()));
+                        }
+                    }
+                    else
+                    {
+                        receivedPackets.Add(deserializedPacket);
+                    }
+                }
             }
             catch (IOException ioEx)
             {
                 ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - ReceivePacketAsync(): IO Error: {ioEx.Message}");
-                return null;
             }
             catch (ObjectDisposedException objDisposedEx)
             {
                 ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - ReceivePacketAsync(): Object Disposed Error: {objDisposedEx.Message}");
-                return null;
             }
             catch (Exception ex)
             {
                 ChronicApplication.Instance.Logger.Error($"(PacketHandler.cs) - ReceivePacketAsync(): General Error: {ex.Message}");
-                return null;
             }
+            return receivedPackets;
         }
 
         public void ProcessPacket(Packet packet)
@@ -162,6 +274,76 @@ namespace ExoticClient.Classes.Client.PacketSystem
             else
             {
                 ChronicApplication.Instance.Logger.Warning($"Unknown packet type {packet.PacketType}");
+            }
+        }
+
+        private Packet ReassemblePacket(string fragmentID)
+        {
+            var fragments = packetFragments[fragmentID];
+            var reassembledData = fragments.OrderBy(f => f.SequenceNumber)
+                                           .SelectMany(f => f.Data)
+                                           .ToArray();
+
+            var firstFragment = fragments.First();
+            firstFragment.Data = reassembledData;
+            firstFragment.IsFragmented = false;
+
+            packetFragments.TryRemove(fragmentID, out _);
+
+            return firstFragment;
+        }
+
+        private bool IsLastFragment(Packet packet)
+        {
+            if (packetFragments.TryGetValue(packet.FragmentID.ToString(), out List<Packet> fragments))
+            {
+                // Check if the number of received fragments equals the total number of fragments
+                if (fragments.Count == packet.TotalFragments)
+                {
+                    // Check for missing or out-of-order fragments
+                    var sequenceNumbers = fragments.Select(f => f.SequenceNumber).OrderBy(n => n).ToList();
+                    for (int i = 0; i < sequenceNumbers.Count; i++)
+                    {
+                        if (sequenceNumbers[i] != i)
+                        {
+                            // Missing or out-of-order fragment detected
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void HandleMissingOrOutOfOrderFragments(string fragmentID)
+        {
+            if (packetFragments.TryGetValue(fragmentID, out List<Packet> fragments))
+            {
+                var sequenceNumbers = fragments.Select(f => f.SequenceNumber).OrderBy(n => n).ToList();
+                List<int> missingFragments = new List<int>();
+
+                for (int i = 0; i < fragments.First().TotalFragments; i++)
+                {
+                    if (!sequenceNumbers.Contains(i))
+                    {
+                        missingFragments.Add(i);
+                    }
+                }
+
+                if (missingFragments.Any())
+                {
+                    // Logic to handle missing fragments
+                    string missingFragmentsStr = string.Join(", ", missingFragments);
+                    ChronicApplication.Instance.Logger.Warning($"Missing fragments for FragmentID: {fragmentID} are {missingFragmentsStr}");
+                    // Optionally, request these specific fragments from the client again
+                }
+                else
+                {
+                    // Logic to handle out-of-order but complete fragments
+                    fragments.Sort((a, b) => a.SequenceNumber.CompareTo(b.SequenceNumber));
+                    // Fragments are now in order and ready for reassembly
+                }
             }
         }
     }

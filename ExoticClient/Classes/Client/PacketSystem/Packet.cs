@@ -20,10 +20,10 @@ namespace ExoticClient.Classes.Client.PacketSystem
         // Flow Control
         public bool IsFragmented { get; set; }
         public Guid FragmentID { get; set; }
+        public int TotalFragments { get; set; }
 
         // Error Handling
         public int RetryCount { get; set; }
-        public bool AckRequired { get; set; }
 
         // Additional fields
         public string Version { get; set; }
