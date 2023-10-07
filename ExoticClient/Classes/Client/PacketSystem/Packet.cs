@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ExoticClient.Classes.Client.PacketSystem
 {
@@ -27,9 +29,22 @@ namespace ExoticClient.Classes.Client.PacketSystem
 
         // Additional fields
         public string Version { get; set; }
-        public int Priority { get; set; }
         public DateTime? ExpirationTime { get; set; }
         public string SenderID { get; set; }
         public string ReceiverID { get; set; }
+
+        public void GenerateChecksum()
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                byte[] bytes = sha256Hash.ComputeHash(this.Data);
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                this.Checksum = builder.ToString();
+            }
+        }
     }
 }

@@ -6,7 +6,7 @@ namespace ExoticClient.Classes.Client.PacketSystem.Packets
 {
     public class TooManyRequestPacket : IPacketHandler
     {
-        public async void Handle(Packet packet)
+        public async void Handle(Packet packet, ClientHandler clientHandler)
         {
             string data = Encoding.UTF8.GetString(packet.Data);
             MessageBox.Show(data, "Too Many Request");

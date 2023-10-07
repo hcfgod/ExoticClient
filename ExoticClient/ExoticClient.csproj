@@ -74,6 +74,7 @@
     <Compile Include="Classes\Client\PacketSystem\Packets\TooManyRequestPacket.cs" />
     <Compile Include="Classes\User.cs" />
     <Compile Include="Classes\UserManager.cs" />
+    <Compile Include="Classes\Utils\CryptoUtility.cs" />
     <Compile Include="Forms\MainClientForm.cs">
       <SubType>Form</SubType>
     </Compile>

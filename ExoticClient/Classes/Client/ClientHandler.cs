@@ -54,7 +54,7 @@ namespace ExoticClient.Classes.Client
                 {
                     foreach (var receivedPacket in receivedPackets)
                     {
-                        _packetHandler.ProcessPacket(receivedPacket);
+                        _packetHandler.ProcessPacket(receivedPacket, this);
                     }
                 }
             }
