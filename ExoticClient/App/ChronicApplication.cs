@@ -24,7 +24,8 @@ namespace ExoticClient.App
 
             _formHandler = new FormHandler();
 
-            _tcpClient = new ExoticTcpClient("127.0.0.1", 24000);
+            _tcpClient = new ExoticTcpClient("127.0.0.1", 9000); // Delete when done testing
+            //_tcpClient = new ExoticTcpClient("69.145.134.102", 9000); // Uncomment when done testing and is not on the same network as the server
 
             _userManager = new UserManager();
 

@@ -4,6 +4,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +12,8 @@ namespace ExoticClient.Classes.Client
 {
     public class ClientHandler
     {
+        private ExoticTcpClient _exoticTcpClient;
+
         private TcpClient _client;
         private NetworkStream _clientStream;
 
@@ -21,8 +24,9 @@ namespace ExoticClient.Classes.Client
 
         private PacketHandler _packetHandler;
 
-        public ClientHandler(TcpClient client, PacketHandler packetHandler)
+        public ClientHandler(ExoticTcpClient exoticTcpClient, TcpClient client, PacketHandler packetHandler)
         {
+            _exoticTcpClient = exoticTcpClient;
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _clientStream = _client.GetStream();
 
@@ -33,6 +37,11 @@ namespace ExoticClient.Classes.Client
         {
             ArrayPool<byte> pool = ArrayPool<byte>.Shared;
             byte[] dataBuffer = pool.Rent(4096);
+
+            // Send Server Client Public Key
+            byte[] clientPublicKeyData = Encoding.UTF8.GetBytes(_exoticTcpClient.ClientKeyManager.GetPublicKey());
+            Packet clientPublicKeyPacket = _packetHandler.CreateNewPacket(clientPublicKeyData, "Client Public Key Packet");
+            await _packetHandler.SendPacketAsync(clientPublicKeyPacket, _clientStream);
 
             while (!token.IsCancellationRequested && _client.Connected)
             {
@@ -76,5 +85,7 @@ namespace ExoticClient.Classes.Client
         {
             return _clientStream;
         }
+
+        public ExoticTcpClient ExoticTcpClient => _exoticTcpClient;
     }
 }

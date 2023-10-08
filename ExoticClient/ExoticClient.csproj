@@ -69,9 +69,12 @@
     <Compile Include="Classes\Client\PacketSystem\IPacketHandler.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packet.cs" />
     <Compile Include="Classes\Client\PacketSystem\PacketHandler.cs" />
+    <Compile Include="Classes\Client\PacketSystem\Packets\AesKeyAndIvPacket.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packets\ClientIDPacket.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packets\DisconnectedForSecurityReasonsPacket.cs" />
+    <Compile Include="Classes\Client\PacketSystem\Packets\ServerPublicKeyPacket.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packets\TooManyRequestPacket.cs" />
+    <Compile Include="Classes\Client\Security\KeyManager.cs" />
     <Compile Include="Classes\User.cs" />
     <Compile Include="Classes\UserManager.cs" />
     <Compile Include="Classes\Utils\CryptoUtility.cs" />
