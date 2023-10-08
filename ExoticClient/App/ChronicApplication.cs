@@ -36,9 +36,10 @@ namespace ExoticClient.App
             _logger.Information($"(ChronicApplication.cs) - ChronicApplication(): App Started!");
         }
 
-        public void Initialize()
+        public async void Initialize()
         {
-            ShowForm(_formHandler.MainForm);
+            await _tcpClient.ConnectToServer();
+            ShowForm(_formHandler.LoginForm);
         }
 
         public void ShowForm(Form form)

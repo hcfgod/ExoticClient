@@ -1,8 +1,6 @@
 ﻿using ExoticClient.App;
 using ExoticClient.App.UI;
 using ExoticClient.Classes.Client;
-using ExoticClient.Classes.Client.PacketSystem;
-using System.Text;
 using System.Windows.Forms;
 
 namespace ExoticClient.Forms
@@ -19,10 +17,8 @@ namespace ExoticClient.Forms
             _application = ChronicApplication.Instance;
         }
 
-        private async void MainClientForm_Load(object sender, System.EventArgs e)
+        private void MainClientForm_Load(object sender, System.EventArgs e)
         {
-            await ChronicApplication.Instance.TcpClient.ConnectToServer();
-
             _tcpClient = _application.TcpClient;
         }
 

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Windows.Forms;
 
 namespace ExoticClient.Classes.Client.PacketSystem.Packets
 {
@@ -12,8 +13,8 @@ namespace ExoticClient.Classes.Client.PacketSystem.Packets
 
             string[] splitAesKeyAndIV = aesKeyAndIv.Split(':');
 
-            string aesKey = splitAesKeyAndIV[0];
-            string aesIv = splitAesKeyAndIV[1];
+            string aesKey = splitAesKeyAndIV[0].Trim();
+            string aesIv = splitAesKeyAndIV[1].Trim();
 
             CryptoUtility.SetAesKey(aesKey);
             CryptoUtility.SetAesIV(aesIv);

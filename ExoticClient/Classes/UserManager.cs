@@ -1,19 +1,27 @@
-﻿namespace ExoticClient.Classes
+﻿using System.Windows.Forms;
+
+namespace ExoticClient.Classes
 {
     public class UserManager
     {
         public static UserManager Instance { get; private set; }
 
-        private User _currentUser;
+        private UserDetails _userDetails;
 
-        public UserManager()
+        public void SetUserDetails(UserDetails userDetails)
         {
-            if (Instance == null)
-                Instance = this;
-
-            _currentUser = new User();
+            _userDetails = userDetails;
         }
 
-        public User CurrentUser { get { return _currentUser; } }
+        public UserDetails GetUserDetails()
+        {
+            if (_userDetails == null)
+            {
+                MessageBox.Show("User details returned is null."); // Log Instead
+                return null;
+            }
+
+            return _userDetails;
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace ExoticClient.App
             ChronicApplication app = new ChronicApplication();
             app.Initialize();
 
-            Application.Run(app.FormHandler.MainForm);
+            Application.Run();
         }
     }
 }
