@@ -8,6 +8,17 @@ namespace ExoticClient.Classes
 
         private UserDetails _userDetails;
 
+        public UserManager()
+        {
+            Instance = this;
+            _userDetails = new UserDetails();
+        }
+
+        public void SetUsername(string username)
+        {
+            _userDetails.Username = username;
+        }
+
         public void SetUserDetails(UserDetails userDetails)
         {
             _userDetails = userDetails;

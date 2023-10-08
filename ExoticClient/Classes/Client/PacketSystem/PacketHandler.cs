@@ -25,6 +25,8 @@ namespace ExoticClient.Classes.Client.PacketSystem
 
             packetHandlers.TryAdd("Disconnected For Security Reasons Packet", new DisconnectedForSecurityReasonsPacket());
             packetHandlers.TryAdd("Too Many Request Packet", new TooManyRequestPacket());
+            packetHandlers.TryAdd("Login Response Packet", new LoginResponsePacket());
+            packetHandlers.TryAdd("Requested UserDetails Response Packet", new RequestedUserDetailsResponsePacket());
         }
 
         public byte[] SerializePacket(Packet packet)

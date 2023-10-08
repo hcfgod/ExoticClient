@@ -87,5 +87,7 @@ namespace ExoticClient.Classes.Client
         }
 
         public ExoticTcpClient ExoticTcpClient => _exoticTcpClient;
+
+        public PacketHandler PacketHandler => _packetHandler;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ExoticClient.App;
 using ExoticClient.App.UI;
+using ExoticClient.Classes;
 using ExoticClient.Classes.Client;
 using ExoticClient.Classes.Client.Authentication;
 using ExoticClient.Classes.Client.PacketSystem;
@@ -37,6 +38,8 @@ namespace ExoticClient.Forms
                 PasswordHash = hashedPassword,
                 PasswordSalt = ""
             };
+
+            UserManager.Instance.SetUsername(userAuthDetails.Username);
 
             string userAuthDetailsJsonString = JsonConvert.SerializeObject(userAuthDetails);
             byte[] userAuthDetailsData = Encoding.UTF8.GetBytes(userAuthDetailsJsonString);

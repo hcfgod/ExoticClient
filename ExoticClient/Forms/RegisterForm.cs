@@ -17,6 +17,7 @@ namespace ExoticClient.Forms
 {
     public partial class RegisterForm : CustomForm
     {
+        private ChronicApplication _applicaton;
         private ExoticTcpClient _tcpClient;
 
         public RegisterForm()
@@ -24,9 +25,10 @@ namespace ExoticClient.Forms
             InitializeComponent();
         }
 
-        private void RegisterForm_Load(object sender, System.EventArgs e)
+        private void RegisterForm_Load(object sender, EventArgs e)
         {
-            _tcpClient = ChronicApplication.Instance.TcpClient;
+            _applicaton = ChronicApplication.Instance;
+            _tcpClient = _applicaton.TcpClient;
         }
 
         private async void RegisterButton_Click(object sender, System.EventArgs e)
@@ -73,7 +75,8 @@ namespace ExoticClient.Forms
 
         private void BackToLoginButton_Click(object sender, EventArgs e)
         {
-
+            _applicaton.HideForm(_applicaton.FormHandler.RegisterForm);
+            _applicaton.ShowForm(_applicaton.FormHandler.LoginForm);
         }
     }
 }

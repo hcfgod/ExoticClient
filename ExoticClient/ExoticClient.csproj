@@ -118,6 +118,8 @@
     <Compile Include="Classes\Client\PacketSystem\PacketHandler.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packets\AesKeyAndIvPacket.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packets\DisconnectedForSecurityReasonsPacket.cs" />
+    <Compile Include="Classes\Client\PacketSystem\Packets\LoginResponsePacket.cs" />
+    <Compile Include="Classes\Client\PacketSystem\Packets\RequestedUserDetailsResponsePacket.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packets\ServerResponseForLoginPacket.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packets\ServerPublicKeyPacket.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packets\TooManyRequestPacket.cs" />
@@ -125,6 +127,7 @@
     <Compile Include="Classes\UserDetails.cs" />
     <Compile Include="Classes\UserManager.cs" />
     <Compile Include="Classes\Utils\CryptoUtility.cs" />
+    <Compile Include="Classes\Utils\PacketUtils.cs" />
     <Compile Include="Classes\Utils\PasswordHelper.cs" />
     <Compile Include="Forms\LoginForm.cs">
       <SubType>Form</SubType>
