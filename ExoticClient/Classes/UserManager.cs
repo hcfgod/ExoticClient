@@ -11,6 +11,10 @@ namespace ExoticClient.Classes
         public UserManager()
         {
             Instance = this;
+        }
+
+        public void Initialize()
+        {
             _userDetails = new UserDetails();
         }
 

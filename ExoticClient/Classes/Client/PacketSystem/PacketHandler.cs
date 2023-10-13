@@ -21,7 +21,8 @@ namespace ExoticClient.Classes.Client.PacketSystem
         {
             // Initialize packet handlers
             packetHandlers.TryAdd("Server Public Key Packet", new ServerPublicKeyPacket());
-            packetHandlers.TryAdd("Aes Key And IV Packet", new AesKeyAndIvPacket());
+            packetHandlers.TryAdd("Aes Key Packet", new AesKeyPacket());
+            packetHandlers.TryAdd("Aes IV Packet", new AesIVPacket());
 
             packetHandlers.TryAdd("Disconnected For Security Reasons Packet", new DisconnectedForSecurityReasonsPacket());
             packetHandlers.TryAdd("Too Many Request Packet", new TooManyRequestPacket());

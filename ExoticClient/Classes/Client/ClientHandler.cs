@@ -1,9 +1,11 @@
 ﻿using ExoticClient.App;
 using ExoticClient.Classes.Client.PacketSystem;
+using Newtonsoft.Json;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,7 +41,8 @@ namespace ExoticClient.Classes.Client
             byte[] dataBuffer = pool.Rent(4096);
 
             // Send Server Client Public Key
-            byte[] clientPublicKeyData = Encoding.UTF8.GetBytes(_exoticTcpClient.ClientKeyManager.GetPublicKey());
+            string jsonString = JsonConvert.SerializeObject(_exoticTcpClient.ClientKeyManager.GetPublicKey());
+            byte[] clientPublicKeyData = Encoding.UTF8.GetBytes(jsonString);
             Packet clientPublicKeyPacket = _packetHandler.CreateNewPacket(clientPublicKeyData, "Client Public Key Packet");
             await _packetHandler.SendPacketAsync(clientPublicKeyPacket, _clientStream);
 

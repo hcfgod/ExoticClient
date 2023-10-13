@@ -116,7 +116,8 @@
     <Compile Include="Classes\Client\PacketSystem\IPacketHandler.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packet.cs" />
     <Compile Include="Classes\Client\PacketSystem\PacketHandler.cs" />
-    <Compile Include="Classes\Client\PacketSystem\Packets\AesKeyAndIvPacket.cs" />
+    <Compile Include="Classes\Client\PacketSystem\Packets\AesIVPacket.cs" />
+    <Compile Include="Classes\Client\PacketSystem\Packets\AesKeyPacket.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packets\DisconnectedForSecurityReasonsPacket.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packets\LoginResponsePacket.cs" />
     <Compile Include="Classes\Client\PacketSystem\Packets\RequestedUserDetailsResponsePacket.cs" />

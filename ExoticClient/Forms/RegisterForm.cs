@@ -33,6 +33,12 @@ namespace ExoticClient.Forms
 
         private async void RegisterButton_Click(object sender, System.EventArgs e)
         {
+            if(txtPassword.Text != txtConfirmPassword.Text)
+            {
+                MessageBox.Show("Passwords Must Match.");
+                return;
+            }
+
             string hashedPassword = PasswordHelper.HashPassword(txtPassword.Text);
 
             string userID = Guid.NewGuid().ToString();

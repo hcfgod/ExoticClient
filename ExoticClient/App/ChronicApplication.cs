@@ -15,7 +15,6 @@ namespace ExoticClient.App
         private readonly FormHandler _formHandler;
         private readonly ILogger _logger;
         private readonly ExoticTcpClient _tcpClient;
-        private readonly UserManager _userManager;
 
         public ChronicApplication()
         {
@@ -24,13 +23,14 @@ namespace ExoticClient.App
 
             _formHandler = new FormHandler();
 
-            _tcpClient = new ExoticTcpClient("127.0.0.1", 9000); // Delete when done testing
-            //_tcpClient = new ExoticTcpClient("69.145.134.102", 9000); // Uncomment when done testing and is not on the same network as the server
+            _tcpClient = new ExoticTcpClient("127.0.0.1", 24000); // Delete when done testing
+            //_tcpClient = new ExoticTcpClient("69.145.134.102", 24000); // Uncomment when done testing and is not on the same network as the server
 
-            _userManager = new UserManager();
+            UserManager userManager = new UserManager();
+            userManager.Initialize();
 
             _logger = new LoggerConfiguration()
-                        .WriteTo.File("D:/Coding/Projects/C#/ServerAndClient Projects/ExoticClient/ExoticClient-logs.txt", rollingInterval: RollingInterval.Day)
+                        .WriteTo.File("..\\..\\ExoticClient-logs.txt", rollingInterval: RollingInterval.Day)
                         .CreateLogger();
 
             _logger.Information($"(ChronicApplication.cs) - ChronicApplication(): App Started!");
