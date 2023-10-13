@@ -43,7 +43,7 @@ namespace ExoticClient.Classes.Client
             // Send Server Client Public Key
             string jsonString = JsonConvert.SerializeObject(_exoticTcpClient.ClientKeyManager.GetPublicKey());
             byte[] clientPublicKeyData = Encoding.UTF8.GetBytes(jsonString);
-            Packet clientPublicKeyPacket = _packetHandler.CreateNewPacket(clientPublicKeyData, "Client Public Key Packet");
+            Packet clientPublicKeyPacket = _packetHandler.CreateNewPacket(clientPublicKeyData, "Client Public Key");
             await _packetHandler.SendPacketAsync(clientPublicKeyPacket, _clientStream);
 
             while (!token.IsCancellationRequested && _client.Connected)

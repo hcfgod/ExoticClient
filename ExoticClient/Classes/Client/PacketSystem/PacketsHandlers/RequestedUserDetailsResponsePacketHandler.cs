@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System.Text;
+using System.Windows.Forms;
 
-namespace ExoticClient.Classes.Client.PacketSystem.Packets
+namespace ExoticClient.Classes.Client.PacketSystem.PacketsHandlers
 {
-    public class RequestedUserDetailsResponsePacket : IPacketHandler
+    public class RequestedUserDetailsResponsePacketHandler : IPacketHandler
     {
         public void Handle(Packet packet, ClientHandler clientHandler)
         {

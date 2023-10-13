@@ -39,12 +39,10 @@ namespace ExoticClient.Forms
                 PasswordSalt = ""
             };
 
-            UserManager.Instance.SetUsername(userAuthDetails.Username);
-
             string userAuthDetailsJsonString = JsonConvert.SerializeObject(userAuthDetails);
             byte[] userAuthDetailsData = Encoding.UTF8.GetBytes(userAuthDetailsJsonString);
 
-            Packet userAuthDetailsPacket = _tcpClient.PacketHandler.CreateNewPacket(userAuthDetailsData, "User Login Packet", true);
+            Packet userAuthDetailsPacket = _tcpClient.PacketHandler.CreateNewPacket(userAuthDetailsData, "User Login", true);
             await _tcpClient.PacketHandler.SendPacketAsync(userAuthDetailsPacket, _tcpClient.ClientHandler.GetNetworkStream());
         }
 

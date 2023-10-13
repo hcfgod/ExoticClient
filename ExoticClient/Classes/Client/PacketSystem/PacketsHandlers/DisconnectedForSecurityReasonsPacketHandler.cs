@@ -1,9 +1,9 @@
 ﻿using ExoticClient.App;
 using System.Windows.Forms;
 
-namespace ExoticClient.Classes.Client.PacketSystem.Packets
+namespace ExoticClient.Classes.Client.PacketSystem.PacketsHandlers
 {
-    public class DisconnectedForSecurityReasonsPacket : IPacketHandler
+    public class DisconnectedForSecurityReasonsPacketHandler : IPacketHandler
     {
         public void Handle(Packet packet, ClientHandler clientHandler)
         {

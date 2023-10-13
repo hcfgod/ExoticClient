@@ -1,11 +1,10 @@
 ﻿using ExoticClient.App;
-using ExoticClient.Classes.Utils;
 using System.Text;
 using System.Windows.Forms;
 
-namespace ExoticClient.Classes.Client.PacketSystem.Packets
+namespace ExoticClient.Classes.Client.PacketSystem.PacketsHandlers
 {
-    public class LoginResponsePacket : IPacketHandler
+    public class LoginResponsePacketHandler : IPacketHandler
     {
         private ChronicApplication _application;
 
@@ -18,8 +17,6 @@ namespace ExoticClient.Classes.Client.PacketSystem.Packets
             if(response == "Login Successful")
             {
                 MessageBox.Show("Login Successful");
-
-                PacketUtils.SendRequestPacketForUserDetails(clientHandler.PacketHandler, clientHandler.GetNetworkStream());
 
                 _application.HideForm(_application.FormHandler.LoginForm);
                 _application.ShowForm(_application.FormHandler.MainForm);

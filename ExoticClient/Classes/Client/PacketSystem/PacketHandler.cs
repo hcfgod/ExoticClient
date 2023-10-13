@@ -1,5 +1,6 @@
 ﻿using ExoticClient.App;
-using ExoticClient.Classes.Client.PacketSystem.Packets;
+using ExoticClient.Classes.Client.PacketSystem.PacketsHandlers;
+using ExoticClient.Classes.Client.PacketSystem.Packets.RegistrationPacketHandlers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -20,14 +21,27 @@ namespace ExoticClient.Classes.Client.PacketSystem
         public PacketHandler()
         {
             // Initialize packet handlers
-            packetHandlers.TryAdd("Server Public Key Packet", new ServerPublicKeyPacket());
-            packetHandlers.TryAdd("Aes Key Packet", new AesKeyPacket());
-            packetHandlers.TryAdd("Aes IV Packet", new AesIVPacket());
 
-            packetHandlers.TryAdd("Disconnected For Security Reasons Packet", new DisconnectedForSecurityReasonsPacket());
-            packetHandlers.TryAdd("Too Many Request Packet", new TooManyRequestPacket());
-            packetHandlers.TryAdd("Login Response Packet", new LoginResponsePacket());
-            packetHandlers.TryAdd("Requested UserDetails Response Packet", new RequestedUserDetailsResponsePacket());
+            // Authentication
+            packetHandlers.TryAdd("Server Public Key", new ServerPublicKeyPacketHandler());
+            packetHandlers.TryAdd("Aes Key", new AesKeyPacketHandler());
+            packetHandlers.TryAdd("Aes IV", new AesIVPacketHandler());
+
+            // Security
+            packetHandlers.TryAdd("Disconnected For Security Reasons", new DisconnectedForSecurityReasonsPacketHandler());
+            packetHandlers.TryAdd("Too Many Request", new TooManyRequestPacketHandler());
+
+            // Registration
+            packetHandlers.TryAdd("Must Enter Valid Email", new MustEnterValidEmailPacketHandler());
+            packetHandlers.TryAdd("Username Already Exist", new UsernameAlreadyExistPacketHandler());
+            packetHandlers.TryAdd("Email Already Exist", new EmailAlreadyExistPacketHandler());
+            packetHandlers.TryAdd("Registration Response", new RegistrationResponsePacketHandler());
+
+            // Login
+            packetHandlers.TryAdd("Login Response", new LoginResponsePacketHandler());
+
+            // User
+            packetHandlers.TryAdd("Requested UserDetails Response", new RequestedUserDetailsResponsePacketHandler());
         }
 
         public byte[] SerializePacket(Packet packet)
@@ -36,7 +50,7 @@ namespace ExoticClient.Classes.Client.PacketSystem
             {
                 if (packet.EncryptionFlag)
                 {
-                    packet.Data = CryptoUtility.Encrypt(packet.Data);  // Your Encrypt method
+                    packet.Data = CryptoUtility.AesEncrypt(packet.Data);  // Your Encrypt method
                 }
 
                 packet.GenerateChecksum();
@@ -89,7 +103,7 @@ namespace ExoticClient.Classes.Client.PacketSystem
                     {
                         if (packet.EncryptionFlag)
                         {
-                            packet.Data = CryptoUtility.Decrypt(packet.Data);
+                            packet.Data = CryptoUtility.AesDecrypt(packet.Data);
                         }
 
                         packets.Add(packet);

@@ -2,9 +2,9 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ExoticClient.Classes.Client.PacketSystem.Packets
+namespace ExoticClient.Classes.Client.PacketSystem.PacketsHandlers
 {
-    public class ServerPublicKeyPacket : IPacketHandler
+    public class ServerPublicKeyPacketHandler : IPacketHandler
     {
         public void Handle(Packet packet, ClientHandler clientHandler)
         {

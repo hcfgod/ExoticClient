@@ -31,7 +31,7 @@ namespace ExoticClient.Forms
             _tcpClient = _applicaton.TcpClient;
         }
 
-        private async void RegisterButton_Click(object sender, System.EventArgs e)
+        private async void RegisterButton_Click(object sender, EventArgs e)
         {
             if(txtPassword.Text != txtConfirmPassword.Text)
             {
@@ -57,6 +57,8 @@ namespace ExoticClient.Forms
                 PasswordSalt = ""
             };
 
+            UserManager.Instance.SetUsername(userAuthDetails.Username);
+
             string userDetailsJsonString = JsonConvert.SerializeObject(userDetails);
             string userAuthDetailsJsonString = JsonConvert.SerializeObject(userAuthDetails);
 
@@ -64,7 +66,7 @@ namespace ExoticClient.Forms
 
             byte[] userAuthAndDetailsData = Encoding.UTF8.GetBytes(userAuthAndDetails);
 
-            Packet userAuthDetailsPacket = _tcpClient.PacketHandler.CreateNewPacket(userAuthAndDetailsData, "User Registration Packet", true);
+            Packet userAuthDetailsPacket = _tcpClient.PacketHandler.CreateNewPacket(userAuthAndDetailsData, "User Registration", true);
             await _tcpClient.PacketHandler.SendPacketAsync(userAuthDetailsPacket, _tcpClient.ClientHandler.GetNetworkStream());
         }
 

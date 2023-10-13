@@ -10,9 +10,9 @@ public static class CryptoUtility
     public static byte[] AesKey => _aesKey;
     public static byte[] AesIV => _aesIV;
 
-    public static byte[] Encrypt(byte[] data)
+    public static byte[] AesEncrypt(byte[] data)
     {
-        using (Aes aesAlg = Aes.Create())
+        using (Aes aesAlg = new AesCng())
         {
             aesAlg.Key = _aesKey;
             aesAlg.IV = _aesIV;
@@ -31,9 +31,9 @@ public static class CryptoUtility
         }
     }
 
-    public static byte[] Decrypt(byte[] encryptedData)
+    public static byte[] AesDecrypt(byte[] encryptedData)
     {
-        using (Aes aesAlg = Aes.Create())
+        using (Aes aesAlg = new AesCng())
         {
             aesAlg.Key = _aesKey;
             aesAlg.IV = _aesIV;
@@ -54,21 +54,20 @@ public static class CryptoUtility
         }
     }
 
-    // RSA encryption using the server's public key
-    public static byte[] EncryptWithPublicKey(byte[] data, RSAParameters publicKey)
+    public static byte[] RsaEncrypt(byte[] data, RSAParameters rsaParameters)
     {
         using (RSA rsa = new RSACng())
         {
-            rsa.ImportParameters(publicKey);
+            rsa.ImportParameters(rsaParameters);
             return rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA256);
         }
     }
-    // RSA decryption using the server's private key
-    public static byte[] DecryptWithPrivateKey(byte[] encryptedData, RSAParameters privateKey)
+
+    public static byte[] RsaDecrypt(byte[] encryptedData, RSAParameters rsaParameters)
     {
         using (RSA rsa = new RSACng())
         {
-            rsa.ImportParameters(privateKey);
+            rsa.ImportParameters(rsaParameters);
             return rsa.Decrypt(encryptedData, RSAEncryptionPadding.OaepSHA256);
         }
     }

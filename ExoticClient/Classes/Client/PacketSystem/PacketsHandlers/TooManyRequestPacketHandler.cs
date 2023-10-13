@@ -2,9 +2,9 @@
 using System.Text;
 using System.Windows.Forms;
 
-namespace ExoticClient.Classes.Client.PacketSystem.Packets
+namespace ExoticClient.Classes.Client.PacketSystem.PacketsHandlers
 {
-    public class TooManyRequestPacket : IPacketHandler
+    public class TooManyRequestPacketHandler : IPacketHandler
     {
         public async void Handle(Packet packet, ClientHandler clientHandler)
         {
